@@ -1,0 +1,88 @@
+[package]
+name = "ulvt_snark_bench"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ark-bn254 = "0.4.0"
+ark-ff = "0.4.2"
+ark-poly = "0.4.2"
+ark-std = { version = "0.4.0", features = ["print-trace"] }
+bincode = "1.3.3"
+binius_core = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "802983ab" }
+binius_field = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "802983ab" }
+binius_hal = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "802983ab" }
+binius_hash = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "802983ab" }
+binius_math = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "802983ab" }
+binius_ntt = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "802983ab" }
+binius_utils = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "802983ab", features = ["tracing"] }
+blake2 = "0.10.6"
+blake3 = { version = "1.5.0", default-features = false }
+bytemuck = "1.14.0"
+bytesize = "1.3.0"
+criterion = { version = "0.5.1", features = ["real_blackbox"] }
+groestl = "0.10.1"
+jolt-core = { git = "https://github.com/a16z/jolt", rev = "55c577f5" }
+plonky2 = { git = "https://github.com/0xPolygonZero/plonky2", rev = "41dc325e" }
+plonky2_field = { git = "https://github.com/0xPolygonZero/plonky2", rev = "41dc325e" }
+p3-baby-bear = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761", features = ["nightly-features"] }
+p3-monty-31 = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761", features = ["nightly-features"] } 
+p3-challenger = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-circle = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761"  }
+p3-commit = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-dft = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-field = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-fri = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-goldilocks = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-keccak = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-matrix = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-maybe-rayon = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-merkle-tree = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-mersenne-31 = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761", features = ["nightly-features"] }
+p3-poseidon2 = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-symmetric = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+p3-util = { git = "https://github.com/Plonky3/Plonky3", rev = "72936761" }
+rand = { version = "0.8", features = ["small_rng"] }
+rayon = "1.8.0"
+risc0-core = "0.21.0"
+risc0-zkp = "0.21.0"
+sha2 = "0.10.8"
+starky = { git = "https://github.com/0xPolygonZero/plonky2", rev = "41dc325e" }
+stwo = { git = "https://gitlab.com/IrreducibleOSS/third-party/stwo.git", package = "stwo-prover", branch = "ulvt_dev", optional = true }
+tiny-keccak = { version = "2.0.2", features = ["keccak"] }
+tracing = "0.1.40"
+
+[features]
+default = []
+ark_parallel = ["ark-std/parallel", "ark-ff/parallel", "ark-poly/parallel"]
+p3_parallel = ["p3-maybe-rayon/parallel"]
+stwo = ["dep:stwo"]
+
+[profile.release]
+lto = "fat"
+
+[[bench]]
+name = "field_ops"
+harness = false
+
+[[bench]]
+name = "hashing"
+harness = false
+
+[[example]]
+name = "stwo_pcs"
+required-features = ["stwo"]
+
+[patch.crates-io]
+ark-ff = { git = "https://github.com/a16z/arkworks-algebra", branch = "optimize/field-from-u64" }
+ark-ec = { git = "https://github.com/a16z/arkworks-algebra", branch = "optimize/field-from-u64" }
+ark-serialize = { git = "https://github.com/a16z/arkworks-algebra", branch = "optimize/field-from-u64" }
+
+#[patch."https://gitlab.com/IrreducibleOSS/binius"]
+#binius_core = { path = "../binius/crates/core" }
+#binius_field = { path = "../binius/crates/field" }
+#binius_hal = { path = "../binius/crates/hal" }
+#binius_hash = { path = "../binius/crates/hash" }
+#binius_math = { path = "../binius/crates/math" }
+#binius_ntt = { path = "../binius/crates/ntt" }
+#binius_utils = { path = "../binius/crates/utils" }
