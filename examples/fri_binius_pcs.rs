@@ -1,5 +1,7 @@
 // Copyright 2024 Irreducible Inc.
 
+use std::iter::repeat_with;
+
 use ark_std::{end_timer, start_timer};
 use binius_core::{
 	fiat_shamir::HasherChallenger,
@@ -20,7 +22,6 @@ use binius_ntt::{NTTOptions, ThreadingSettings};
 use binius_utils::rayon::adjust_thread_pool;
 use p3_symmetric::{CompressionFunction, PseudoCompressionFunction};
 use rand::thread_rng;
-use std::iter::repeat_with;
 
 const SECURITY_BITS: usize = 96;
 

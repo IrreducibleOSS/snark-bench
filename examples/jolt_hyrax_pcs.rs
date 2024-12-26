@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Copyright 2023-2024 Ulvetanna Inc.
 
+use std::iter::repeat_with;
+
 use ark_bn254::{Fr, G1Projective};
 use ark_std::{end_timer, start_timer, UniformRand};
 use jolt_core::{
@@ -14,7 +16,6 @@ use jolt_core::{
 	utils::transcript::ProofTranscript,
 };
 use rand::{thread_rng, Rng};
-use std::iter::repeat_with;
 
 fn profile_lasso(n_vars: usize, n_bits: usize) {
 	let mut rng = thread_rng();

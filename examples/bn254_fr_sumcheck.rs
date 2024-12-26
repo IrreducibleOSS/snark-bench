@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Copyright 2023 Ulvetanna Inc.
 
+use std::iter::repeat_with;
+
 use ark_bn254::Fr;
 use ark_std::{cfg_into_iter, end_timer, start_timer, One, UniformRand};
 use jolt_core::{
@@ -9,7 +11,6 @@ use jolt_core::{
 };
 use rand::thread_rng;
 use rayon::prelude::*;
-use std::iter::repeat_with;
 
 fn profile_sumcheck<const ALPHA: usize>(num_vars: usize) {
 	println!("n_vars={num_vars}, degree={ALPHA}");

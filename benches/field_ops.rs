@@ -68,11 +68,7 @@ fn bench_binius(c: &mut Criterion) {
 
 	type U = OptimalUnderlier;
 	benchmark_mul::<PackedType<U, BinaryField8b>, _>(&mut group, &mut rng, "Tower 8b");
-	benchmark_mul::<PackedType<U, AESTowerField8b>, _>(
-		&mut group,
-		&mut rng,
-		"Mixed AES Tower 8b",
-	);
+	benchmark_mul::<PackedType<U, AESTowerField8b>, _>(&mut group, &mut rng, "Mixed AES Tower 8b");
 	benchmark_mul::<PackedType<U, BinaryField32b>, _>(&mut group, &mut rng, "Tower 32b");
 	benchmark_mul::<PackedType<U, AESTowerField32b>, _>(
 		&mut group,

@@ -1,6 +1,7 @@
+use std::array;
+
 use criterion::{criterion_group, criterion_main, Criterion, Throughput};
 use rand::{thread_rng, Rng};
-use std::array;
 
 fn bench_sha2(c: &mut Criterion) {
 	use sha2::{Digest, Sha256};

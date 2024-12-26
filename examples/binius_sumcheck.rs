@@ -1,3 +1,5 @@
+use std::iter::repeat_with;
+
 use ark_std::{end_timer, start_timer};
 use binius_core::{
 	fiat_shamir::HasherChallenger,
@@ -11,16 +13,20 @@ use binius_core::{
 	},
 	transcript::TranscriptWriter,
 };
-use binius_field::{BinaryField, BinaryField128b, BinaryField128bPolyval, BinaryField8b, ExtensionField, Field, PackedBinaryField1x128b, PackedBinaryField2x128b, PackedBinaryPolyval1x128b, PackedBinaryPolyval2x128b, PackedExtension, PackedField, PackedFieldIndexable, RepackedExtension, TowerField};
+use binius_field::{
+	BinaryField, BinaryField128b, BinaryField128bPolyval, BinaryField8b, ExtensionField, Field,
+	PackedBinaryField1x128b, PackedBinaryField2x128b, PackedBinaryPolyval1x128b,
+	PackedBinaryPolyval2x128b, PackedExtension, PackedField, PackedFieldIndexable,
+	RepackedExtension, TowerField,
+};
 use binius_hal::make_portable_backend;
 use binius_math::{
-	CompositionPolyOS, IsomorphicEvaluationDomainFactory, MLEDirectAdapter,
-	MultilinearExtension, MultilinearPoly,
+	CompositionPolyOS, IsomorphicEvaluationDomainFactory, MLEDirectAdapter, MultilinearExtension,
+	MultilinearPoly,
 };
 use groestl::Groestl256;
 use rand::{thread_rng, Rng};
 use rayon::prelude::*;
-use std::iter::repeat_with;
 
 fn generate_random_multilinears<P>(
 	mut rng: impl Rng,

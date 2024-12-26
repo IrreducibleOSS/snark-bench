@@ -2,6 +2,8 @@
 
 //! Run and measure timing of plonky2 FRI polynomial commitment scheme on batches of polynomials.
 
+use std::{any::type_name, iter::repeat_with};
+
 use ark_std::{end_timer, start_timer};
 use bytesize::ByteSize;
 use plonky2::{
@@ -23,7 +25,6 @@ use plonky2::{
 };
 use rand::{thread_rng, Rng};
 use starky::config::StarkConfig;
-use std::{any::type_name, iter::repeat_with};
 
 fn profile_commit_prove_verify<C: GenericConfig<2, F = GoldilocksField>>(
 	degree_bits: usize,
