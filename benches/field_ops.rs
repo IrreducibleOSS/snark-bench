@@ -1,8 +1,8 @@
+use binius_field::{AESTowerField8b, BinaryField8b};
 use criterion::{
 	black_box, criterion_group, criterion_main, measurement::Measurement, BenchmarkGroup,
 	Criterion, Throughput,
 };
-use p3_field::extension::Complex;
 use rand::{
 	distributions::{Distribution, Standard},
 	thread_rng, Rng,
@@ -48,8 +48,8 @@ fn bench_risc0(c: &mut Criterion) {
 
 fn bench_binius(c: &mut Criterion) {
 	use binius_field::{
-		arch::packed_polyval_512::PackedBinaryPolyval4x128b, PackedAESBinaryField4x128b,
-		PackedBinaryField4x128b, PackedField,
+		arch::OptimalUnderlier, as_packed_field::PackedType, AESTowerField128b, AESTowerField32b,
+		BinaryField128b, BinaryField128bPolyval, BinaryField32b, PackedField,
 	};
 
 	fn benchmark_mul<P: PackedField, M: Measurement>(
@@ -66,9 +66,26 @@ fn bench_binius(c: &mut Criterion) {
 	let mut rng = thread_rng();
 	let mut group = c.benchmark_group("binius multiply");
 
-	benchmark_mul::<PackedBinaryField4x128b, _>(&mut group, &mut rng, "Tower 128b");
-	benchmark_mul::<PackedAESBinaryField4x128b, _>(&mut group, &mut rng, "Mixed AES Tower 128b");
-	benchmark_mul::<PackedBinaryPolyval4x128b, _>(&mut group, &mut rng, "POLYVAL");
+	type U = OptimalUnderlier;
+	benchmark_mul::<PackedType<U, BinaryField8b>, _>(&mut group, &mut rng, "Tower 8b");
+	benchmark_mul::<PackedType<U, AESTowerField8b>, _>(
+		&mut group,
+		&mut rng,
+		"Mixed AES Tower 8b",
+	);
+	benchmark_mul::<PackedType<U, BinaryField32b>, _>(&mut group, &mut rng, "Tower 32b");
+	benchmark_mul::<PackedType<U, AESTowerField32b>, _>(
+		&mut group,
+		&mut rng,
+		"Mixed AES Tower 32b",
+	);
+	benchmark_mul::<PackedType<U, BinaryField128b>, _>(&mut group, &mut rng, "Tower 128b");
+	benchmark_mul::<PackedType<U, AESTowerField128b>, _>(
+		&mut group,
+		&mut rng,
+		"Mixed AES Tower 128b",
+	);
+	benchmark_mul::<PackedType<U, BinaryField128bPolyval>, _>(&mut group, &mut rng, "POLYVAL");
 
 	group.finish()
 }
@@ -120,7 +137,10 @@ fn bench_plonky2(c: &mut Criterion) {
 
 fn bench_plonky3(c: &mut Criterion) {
 	use p3_baby_bear::BabyBear;
-	use p3_field::{extension::BinomialExtensionField, Field, PackedValue};
+	use p3_field::{
+		extension::{BinomialExtensionField, Complex},
+		Field, PackedValue,
+	};
 	use p3_goldilocks::Goldilocks;
 	use p3_mersenne_31::Mersenne31;
 

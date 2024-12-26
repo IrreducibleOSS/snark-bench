@@ -1,13 +1,9 @@
-// Copyright 2024 Ulvetanna Inc.
-
-#![feature(step_trait)]
+// Copyright 2024 Irreducible Inc.
 
 use ark_std::{end_timer, start_timer};
 use binius_core::{
-	challenger::CanObserve,
 	fiat_shamir::HasherChallenger,
-	merkle_tree_vcs::BinaryMerkleTreeProver,
-	poly_commit::{PolyCommitScheme, FRIPCS},
+	merkle_tree::BinaryMerkleTreeProver,
 	transcript::{AdviceWriter, Proof, TranscriptWriter},
 };
 use binius_field::{
@@ -24,7 +20,7 @@ use binius_ntt::{NTTOptions, ThreadingSettings};
 use binius_utils::rayon::adjust_thread_pool;
 use p3_symmetric::{CompressionFunction, PseudoCompressionFunction};
 use rand::thread_rng;
-use std::iter::{repeat_with, Step};
+use std::iter::repeat_with;
 
 const SECURITY_BITS: usize = 96;
 
@@ -53,7 +49,6 @@ where
 		+ Divisible<u8>,
 	F: TowerField,
 	FDomain: TowerField,
-	FDomain::Canonical: Step,
 	FEncode: BinaryField,
 	FE: TowerField
 		+ ExtensionField<F>

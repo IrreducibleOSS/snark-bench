@@ -1,8 +1,6 @@
-#![feature(step_trait)]
-
 use ark_std::{end_timer, start_timer};
 use binius_core::{
-	challenger::{new_hasher_challenger, CanSample, IsomorphicChallenger},
+	fiat_shamir::HasherChallenger,
 	polynomial::MultilinearComposite,
 	protocols::{
 		sumcheck::{
@@ -11,22 +9,18 @@ use binius_core::{
 		},
 		test_utils::TestProductComposition,
 	},
+	transcript::TranscriptWriter,
 };
-use binius_field::{
-	arch::byte_sliced::ByteSlicedAES32x128b, AESTowerField128b, AESTowerField8b, BinaryField128b,
-	BinaryField128bPolyval, BinaryField8b, ExtensionField, Field, PackedBinaryField1x128b,
-	PackedBinaryField2x128b, PackedBinaryPolyval1x128b, PackedBinaryPolyval2x128b, PackedExtension,
-	PackedField, PackedFieldIndexable, RepackedExtension,
-};
+use binius_field::{BinaryField, BinaryField128b, BinaryField128bPolyval, BinaryField8b, ExtensionField, Field, PackedBinaryField1x128b, PackedBinaryField2x128b, PackedBinaryPolyval1x128b, PackedBinaryPolyval2x128b, PackedExtension, PackedField, PackedFieldIndexable, RepackedExtension, TowerField};
 use binius_hal::make_portable_backend;
-use binius_hash::GroestlHasher;
 use binius_math::{
-	CompositionPoly, IsomorphicEvaluationDomainFactory, MLEDirectAdapter, MLEEmbeddingAdapter,
+	CompositionPolyOS, IsomorphicEvaluationDomainFactory, MLEDirectAdapter,
 	MultilinearExtension, MultilinearPoly,
 };
+use groestl::Groestl256;
 use rand::{thread_rng, Rng};
 use rayon::prelude::*;
-use std::iter::{repeat_with, Step};
+use std::iter::repeat_with;
 
 fn generate_random_multilinears<P>(
 	mut rng: impl Rng,
@@ -51,7 +45,7 @@ where
 	F: Field,
 	P: PackedField<Scalar = F>,
 	M: MultilinearPoly<P> + Send + Sync,
-	Composition: CompositionPoly<P>,
+	Composition: CompositionPolyOS<P>,
 {
 	let n_vars = multilinears
 		.first()
@@ -69,11 +63,10 @@ where
 		.sum()
 }
 
-fn profile_sumcheck<F, FDomain, FStep, FChallenge, P>(id: &str, n_vars: usize, degree: usize)
+fn profile_sumcheck<F, FDomain, FChallenge, P>(id: &str, n_vars: usize, degree: usize)
 where
-	F: Field + ExtensionField<FDomain>,
-	FDomain: Field + From<FStep>,
-	FStep: Field + Step,
+	F: TowerField + ExtensionField<FDomain>,
+	FDomain: BinaryField,
 	FChallenge: Field
 		+ PackedField<Scalar = FChallenge>
 		+ From<F>
@@ -109,7 +102,7 @@ where
 	.unwrap();
 
 	let backend = make_portable_backend();
-	let domain_factory = IsomorphicEvaluationDomainFactory::<FStep>::default();
+	let domain_factory = IsomorphicEvaluationDomainFactory::<FDomain>::default();
 	let prover = RegularSumcheckProver::<FDomain, _, _, _, _>::new(
 		multilins.iter().collect(),
 		[CompositeSumClaim {
@@ -122,29 +115,20 @@ where
 	)
 	.unwrap();
 
-	let challenger = IsomorphicChallenger::<FChallenge, _, F>::new(new_hasher_challenger::<
-		_,
-		GroestlHasher<_>,
-	>());
-
-	let mut prover_challenger = challenger.clone();
+	let mut prover_transcript = TranscriptWriter::<HasherChallenger<Groestl256>>::default();
 
 	let timer = start_timer!(|| "prove");
-	let (_, proof) =
-		batch_prove(vec![prover], &mut prover_challenger).expect("failed to prove sumcheck");
+	let prover_reduced_claims = batch_prove(vec![prover], &mut prover_transcript).unwrap();
 	end_timer!(timer);
 
-	let mut verifier_challenger = challenger.clone();
+	let mut verifier_transcript = prover_transcript.into_reader();
 
 	let timer = start_timer!(|| "verify");
-	let _ = batch_verify(&[claim], proof, &mut verifier_challenger).unwrap();
+	let verifier_reduced_claims = batch_verify(&[claim], &mut verifier_transcript).unwrap();
 	end_timer!(timer);
 
 	// Check that challengers are in the same state
-	assert_eq!(
-		CanSample::<F>::sample(&mut prover_challenger),
-		CanSample::<F>::sample(&mut verifier_challenger)
-	);
+	assert_eq!(prover_reduced_claims, verifier_reduced_claims);
 }
 
 fn main() {
@@ -154,12 +138,10 @@ fn main() {
 				BinaryField128bPolyval,
 				BinaryField128bPolyval,
 				BinaryField128b,
-				BinaryField128b,
 				PackedBinaryPolyval1x128b,
 			>("sumcheck 128b (POLYVAL basis)", n_vars, degree);
 			profile_sumcheck::<
 				BinaryField128b,
-				BinaryField8b,
 				BinaryField8b,
 				BinaryField128b,
 				PackedBinaryField1x128b,
@@ -168,12 +150,10 @@ fn main() {
 				BinaryField128bPolyval,
 				BinaryField128bPolyval,
 				BinaryField128b,
-				BinaryField128b,
 				PackedBinaryPolyval2x128b,
 			>("sumcheck 128b (2x POLYVAL basis)", n_vars, degree);
 			profile_sumcheck::<
 				BinaryField128b,
-				BinaryField8b,
 				BinaryField8b,
 				BinaryField128b,
 				PackedBinaryField2x128b,
@@ -181,7 +161,6 @@ fn main() {
 			// profile_sumcheck::<
 			// 	AESTowerField128b,
 			// 	AESTowerField8b,
-			// 	BinaryField8b,
 			// 	BinaryField128b,
 			// 	ByteSlicedAES32x128b,
 			// >("sumcheck 128b (Byte sliced)", n_vars, degree);
