@@ -14,10 +14,9 @@ use binius_core::{
 	transcript::TranscriptWriter,
 };
 use binius_field::{
-	BinaryField, BinaryField128b, BinaryField128bPolyval, BinaryField8b, ExtensionField, Field,
-	PackedBinaryField1x128b, PackedBinaryField2x128b, PackedBinaryPolyval1x128b,
-	PackedBinaryPolyval2x128b, PackedExtension, PackedField, PackedFieldIndexable,
-	RepackedExtension, TowerField,
+	arch::OptimalUnderlier, as_packed_field::PackedType, BinaryField, BinaryField128b,
+	BinaryField128bPolyval, BinaryField8b, ExtensionField, Field, PackedExtension, PackedField,
+	PackedFieldIndexable, RepackedExtension, TowerField,
 };
 use binius_hal::make_portable_backend;
 use binius_math::{
@@ -138,32 +137,32 @@ where
 }
 
 fn main() {
-	for n_vars in [20, 24] {
+	for n_vars in [20, 24, 28] {
 		for degree in [2, 3, 4] {
+			// profile_sumcheck::<
+			// 	BinaryField128bPolyval,
+			// 	BinaryField128bPolyval,
+			// 	BinaryField128b,
+			// 	PackedBinaryPolyval1x128b,
+			// >("sumcheck 128b (POLYVAL basis)", n_vars, degree);
+			// profile_sumcheck::<
+			// 	BinaryField128b,
+			// 	BinaryField8b,
+			// 	BinaryField128b,
+			// 	PackedBinaryField1x128b,
+			// >("sumcheck 128b (tower basis)", n_vars, degree);
 			profile_sumcheck::<
 				BinaryField128bPolyval,
 				BinaryField128bPolyval,
 				BinaryField128b,
-				PackedBinaryPolyval1x128b,
+				PackedType<OptimalUnderlier, BinaryField128bPolyval>,
 			>("sumcheck 128b (POLYVAL basis)", n_vars, degree);
 			profile_sumcheck::<
 				BinaryField128b,
 				BinaryField8b,
 				BinaryField128b,
-				PackedBinaryField1x128b,
+				PackedType<OptimalUnderlier, BinaryField128b>,
 			>("sumcheck 128b (tower basis)", n_vars, degree);
-			profile_sumcheck::<
-				BinaryField128bPolyval,
-				BinaryField128bPolyval,
-				BinaryField128b,
-				PackedBinaryPolyval2x128b,
-			>("sumcheck 128b (2x POLYVAL basis)", n_vars, degree);
-			profile_sumcheck::<
-				BinaryField128b,
-				BinaryField8b,
-				BinaryField128b,
-				PackedBinaryField2x128b,
-			>("sumcheck 128b (2x tower basis)", n_vars, degree);
 			// profile_sumcheck::<
 			// 	AESTowerField128b,
 			// 	AESTowerField8b,
