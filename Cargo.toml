@@ -9,13 +9,13 @@ ark-ff = "0.4.2"
 ark-poly = "0.4.2"
 ark-std = { version = "0.4.0", features = ["print-trace"] }
 bincode = "1.3.3"
-binius_core = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "56d74a5b" }
-binius_field = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "56d74a5b" }
-binius_hal = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "56d74a5b" }
-binius_hash = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "56d74a5b" }
-binius_math = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "56d74a5b" }
-binius_ntt = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "56d74a5b" }
-binius_utils = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "56d74a5b" }
+binius_core = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "7be2ef5b" }
+binius_field = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "7be2ef5b" }
+binius_hal = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "7be2ef5b" }
+binius_hash = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "7be2ef5b" }
+binius_math = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "7be2ef5b" }
+binius_ntt = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "7be2ef5b" }
+binius_utils = { git = "https://gitlab.com/IrreducibleOSS/binius", rev = "7be2ef5b" }
 blake2 = "0.10.6"
 blake3 = { version = "1.5.0", default-features = false }
 bytesize = "1.3.0"
